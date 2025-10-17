@@ -1,6 +1,21 @@
 [project]
 name = "arm-api"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.14"
-dependencies = []
+description = "Backend API for Adrian Meraz personal site"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.40.54",
+    "fastapi[standard]>=0.119.0",
+    "httpx>=0.28.1",
+    "mangum>=0.19.0",
+    "uvicorn>=0.37.0",
+]
+
+[dependency-groups]
+dev = [
+    # In development mode, include the FastAPI development server.
+    "fastapi[standard]>=0.115",
+]
+
+[tool.ruff]
+line-length = 120
