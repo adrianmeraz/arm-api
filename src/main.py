@@ -12,5 +12,5 @@ def read_root():
     return {"message": "Hello World"}
 
 app.include_router(items_router, prefix="/items", tags=["items"])
-app.include_router(posts_router, prefix="/posts", tags=["items"])
+app.include_router(posts_router, prefix="/posts", tags=["posts"])
 handler = Mangum(app, lifespan="off")
