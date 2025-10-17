@@ -1,10 +1,11 @@
 from .base import BaseDDBModel
 
 class Post(BaseDDBModel):
-    author: str
-    body_html: str
-    category: str
-    image_url: str
-    is_locked: bool = False
-    permalink: str
-    title: str
+    Type: str = "POST"
+    Author: str
+    BodyHtml: str
+    Category: str
+    ImageUrl: str
+    IsLocked: bool = False
+    Permalink: str
+    Title: str
