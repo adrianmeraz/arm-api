@@ -1,5 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
+from pydantic.v1 import UUID4
 
 from src import exceptions
 
@@ -20,3 +21,6 @@ class DynamoDBClient:
         except ClientError as e:
             raise exceptions.DDBException(detail=str(e))
 
+    def get_item(self, item_id: UUID4):
+        response = self._table.get_item(Key={'itemId': item_id})
+        return response.get('Item', None)
