@@ -10,4 +10,4 @@ router = APIRouter()
 
 @router.get("/posts/", response_model=List[Post])
 def read_posts():
-    return DynamoDBClient("POSTS").get_all_table_items()
+    return DynamoDBClient(table_name="POSTS").get_all_table_items()
