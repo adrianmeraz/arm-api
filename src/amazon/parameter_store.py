@@ -39,12 +39,10 @@ class ParameterStore:
 
         if not self.__secrets:
             r = self.ps_client.get_parameter(Name=self.sm_param_store_key, WithDecryption=True)
-            logger.info(f'get_secret# r: {self.Response(r).Parameter.Value}')
+            value = self.Response(r).Parameter.Value
             try:
-                logger.info(f'get_secret# secret value: {self.Response(r).Parameter.Value}')
-                __secrets = json.loads(self.Response(r).Parameter.Value)
+                self.__secrets = json.loads(value)
             except json.decoder.JSONDecodeError as e:
                 raise exceptions.ParameterStoreException('Failed to decode json secrets from Parameter Store') from e
 
-        logger.info(f'get_secret# secrets: {self.__secrets}')
         return self.__secrets.get(key)

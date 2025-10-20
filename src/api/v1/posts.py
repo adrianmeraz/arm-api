@@ -9,9 +9,7 @@ from src.models.post import Post
 
 logger = logs.get_logger()
 router = APIRouter()
-# table_name = param_store.get_secret('AWS_DYNAMO_DB_TABLE_NAME')
-table_name = 'arm-api-dev-table'
-logger.info(f"Table name: {table_name}")
+table_name = param_store.get_secret('AWS_DYNAMO_DB_TABLE_NAME')
 post_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=table_name)
 
 
