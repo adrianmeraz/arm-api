@@ -1,12 +1,18 @@
 from typing import List
+import logging
 
 from fastapi import APIRouter
 
+from src.amazon import dynamodb, param_store
 from src.amazon.dynamo_db import DynamoDBClient
 from src.models.post import Post
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
-post_client = DynamoDBClient(table_name="POSTS")
+# table_name = param_store.get_secret('AWS_DYNAMO_DB_TABLE_NAME')
+table_name = 'arm-api-dev-table'
+logger.info(f"Table name: {table_name}")
+post_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=table_name)
 
 
 @router.get("", response_model=List[Post])

@@ -4,5 +4,5 @@ class BaseArmException(Exception):
 class DDBException(BaseArmException):
     """DynamoDB Exceptions"""
 
-class Exception(BaseArmException):
-    """DynamoDB Exceptions"""
+class ParameterStoreException(BaseArmException):
+    """ParameterStore Exceptions"""
