@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from typing import Any, Dict
 
 import pydantic
 from pydantic import BaseModel
@@ -11,25 +12,32 @@ logger = logs.get_logger()
 
 class BaseDDBModel(BaseModel):
     @staticmethod
-    def now_timestamp() -> datetime.datetime:
-        return datetime.datetime.now()
+    def now_timestamp() -> int:
+        return int(datetime.datetime.now().timestamp())
 
     def generate_pk(self):
-        pk = f'{self.Type}#{self.Id}'
+        pk = f'{self.obj_type}#{self.obj_id}'
         logger.info(f'Generated PK: {pk}')
         return pk
 
     @classmethod
-    def create_pk(cls, _type: str, _id: str) -> str:
-        return f'{_type}#{_id}'
+    def create_pk(cls, obj_type: str, obj_id: uuid.uuid4) -> str:
+        return f'{obj_type}#{obj_id}'
 
-    _id: uuid.UUID = pydantic.PrivateAttr(default_factory=uuid.uuid4)
-    _type: str = pydantic.PrivateAttr()
-    _pk: str = pydantic.PrivateAttr(default=generate_pk)
-    _sk: str = pydantic.PrivateAttr()
-    _created_at: str = pydantic.PrivateAttr(default_factory=now_timestamp)
-    _created_by: str = pydantic.PrivateAttr()
-    _modified_at: str = pydantic.PrivateAttr(default_factory=now_timestamp)
-    _modified_by: str = pydantic.PrivateAttr()
-    _expires_at: int | None = pydantic.PrivateAttr(default=None)
-    _is_deleted: bool = pydantic.PrivateAttr(default=False)
+    obj_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
+    obj_type: str = ''
+    pk: str = ''
+    sk: str = ''
+    created_at_utc: int = pydantic.Field(default_factory=now_timestamp)
+    created_by: str = ''
+    modified_at_utc: int = pydantic.Field(default_factory=now_timestamp)
+    modified_by: str = ''
+    expires_at: int | None = None
+    is_deleted: bool = False
+
+    @pydantic.model_validator(mode='after')
+    def validate_pk(self):
+        if self.pk == "" and all([self.obj_type, self.obj_id]):
+            self.pk = self.create_pk(obj_type=self.obj_type, obj_id=self.obj_id)
+            logger.info(f'New PK: {self.pk}')
+        return self

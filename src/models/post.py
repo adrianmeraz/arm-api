@@ -1,9 +1,13 @@
+from typing import Any, Dict
+
 import pydantic
+
 from .base import BaseDDBModel
 
+
 class Post(BaseDDBModel):
-    _type: str = "POST"
-    _sk: str = pydantic.PrivateAttr(default=BaseDDBModel.generate_pk)
+    obj_type: str = "POST"
+    sk: str = ''
     author: str
     body_html: str
     category: str
@@ -11,3 +15,9 @@ class Post(BaseDDBModel):
     is_locked: bool = False
     permalink: str
     title: str
+
+    @pydantic.model_validator(mode='after')
+    def validate_sk(self):
+        if not self.sk and self.pk:
+            self.sk = self.pk
+        return self

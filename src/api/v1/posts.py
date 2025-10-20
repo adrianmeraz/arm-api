@@ -20,5 +20,6 @@ def read_posts():
 
 @router.post("", response_model=Post)
 def create_post(post: Post):
-    created_item = post_client.create_item(post.model_dump())
+    logger.info(f'Creating post.model_dump(): {post.model_dump(mode='json')}')
+    created_item = post_client.create_item(post.model_dump(mode='json'))
     return created_item
