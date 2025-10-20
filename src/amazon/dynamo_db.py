@@ -1,12 +1,10 @@
-import logging
-
 from boto3.resources.base import ServiceResource
 from botocore.exceptions import ClientError
 from pydantic.v1 import UUID4
 
-from src import exceptions
+from src import exceptions, logs
 
-logger = logging.getLogger(__name__)
+logger = logs.get_logger()
 
 class DynamoDBClient:
     def __init__(self, dynamodb_client: ServiceResource, table_name: str):

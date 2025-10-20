@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from mangum import Mangum
 
+from src import logs
 from src.api.v1.items import router as items_router
 from src.api.v1.posts import router as posts_router
 
 app = FastAPI()
-
+logger = logs.get_logger()
+logger.info("Starting up ARM API")
 
 @app.get("/")
 def read_root():

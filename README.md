@@ -17,6 +17,10 @@ From app root directory, run:
 ```
 uv run fastapi dev src\main.py --port 8086 --reload
 ```
+Via Uvicorn
+```
+uvicorn src.main:app --port 8086 --reload --log-level trace
+```
 
 ## Building / Pushing Images (WSL) Windows
 

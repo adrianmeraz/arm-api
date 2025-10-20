@@ -1,11 +1,12 @@
 import datetime
-import logging
 import uuid
 
 import pydantic
 from pydantic import BaseModel
 
-logger = logging.getLogger(__name__)
+from src import logs
+
+logger = logs.get_logger()
 
 
 class BaseDDBModel(BaseModel):

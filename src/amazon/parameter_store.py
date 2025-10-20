@@ -1,10 +1,9 @@
 import json
-import logging
 import os
 
-from src import exceptions
+from src import exceptions, logs
 
-logger = logging.getLogger(__name__)
+logger = logs.get_logger()
 SM_PARAM_STORE_KEY = 'AWS_SECRET_NAME'
 
 
