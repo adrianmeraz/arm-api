@@ -31,6 +31,15 @@ jobs:
     # Empty prefixes not supported yet, pending this PR:
     # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
     # Using SSM for now
+    - name: Get Secrets 2
+      uses: bomb-on/aws-ssm-to-env@master
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      with:
+        ssm_parameter_list: /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
+        simple_json: true
     - name: Get Secrets
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       env:
