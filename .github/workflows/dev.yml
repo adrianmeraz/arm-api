@@ -19,7 +19,6 @@ jobs:
       AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_REGION:            ${{ secrets.AWS_REGION }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      SSM_SECRET_KEY:        /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
       ENVIRONMENT:           dev
       GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
     steps:
@@ -41,7 +40,7 @@ jobs:
       with:
         decryption: true
         prefix:     SSM_
-        # ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
+        ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
 
     - name: Get Secrets
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
