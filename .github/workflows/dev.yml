@@ -20,7 +20,7 @@ jobs:
       AWS_REGION:            ${{ secrets.AWS_REGION }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ENVIRONMENT:           dev
-      GH_PAT:                ${{ secrets.GH_PAT }}
+      GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v5.1.0
@@ -34,7 +34,7 @@ jobs:
     - name: Get Secrets
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       env:
-        SSM_SECRET_ID: ${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
+        SSM_SECRET_ID: /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
       with:
         secret-ids: |
           SSM,${{ env.SSM_SECRET_ID }}
@@ -86,7 +86,7 @@ jobs:
       uses: dflook/terraform-apply@v2
       env:
         GITHUB_TOKEN: ${{ env.GH_PAT }}
-        SSM_SHARED_SECRET_ID: expatmagic/dev/shared/secret
+        SSM_SHARED_SECRET_ID: /shared/arm-site/dev/secrets
       with:
         path:  apps/${{ env.APP_NAME }}/environments/${{ env.ENVIRONMENT }}
         auto_approve: true
