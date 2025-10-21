@@ -68,7 +68,11 @@ uv add httpx
 ```
 
 ## Repository Secrets
-AWS_ACCESS_KEY_ID
-AWS_REGION
-AWS_SECRET_ACCESS_KEY
-GH_PAT
+- AWS_ACCESS_KEY_ID
+- AWS_REGION
+- AWS_SECRET_ACCESS_KEY
+- GH_PAT
+
+## TODO
+- Add testing instructions
+- Add role module for Github Actions using github-actions-serverless IAM policy

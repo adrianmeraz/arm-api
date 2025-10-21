@@ -54,6 +54,9 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    # Required Github Actions Settings
+    ### Settings -> Actions -> General -> Workflow permissions -> Read and write permissions
+    ### Settings -> Actions -> General -> Allow GitHub Actions to create and approve pull requests
     - name: Build image, cache layers, and push to ECR
       env:
         REPOSITORY_URL:  ${{ env.SSM_AWS_ECR_REPOSITORY_URL }}
@@ -88,17 +91,17 @@ jobs:
       uses: dflook/terraform-apply@v2
       env:
         GITHUB_TOKEN: ${{ env.GH_PAT }}
-        SSM_SHARED_SECRET_ID: /shared/arm-site/dev/secrets
+        SSM_SHARED_SECRET_ID: /shared/${{ env.SHARED_APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
       with:
         path:  apps/${{ env.APP_NAME }}/environments/${{ env.ENVIRONMENT }}
         auto_approve: true
         variables: |
-          app_name                       = "${{ env.APP_NAME }}"
-          aws_access_key                 = "${{ env.AWS_ACCESS_KEY_ID }}"
-          aws_region                     = "${{ env.AWS_REGION }}"
-          aws_secret_key                 = "${{ env.AWS_SECRET_ACCESS_KEY }}"
-          environment                    = "${{ env.ENVIRONMENT }}"
-          shared_secret_id               = "${{ env.SSM_SHARED_SECRET_ID }}"
+          app_name        = "${{ env.APP_NAME }}"
+          aws_access_key  = "${{ env.AWS_ACCESS_KEY_ID }}"
+          aws_region      = "${{ env.AWS_REGION }}"
+          aws_secret_key  = "${{ env.AWS_SECRET_ACCESS_KEY }}"
+          environment     = "${{ env.ENVIRONMENT }}"
+          shared_app_name = "${{ env.SHARED_APP_NAME }}"
 
     - name: Checkout Main Branch
       uses: actions/checkout@v5
