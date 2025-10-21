@@ -31,7 +31,7 @@ jobs:
     # Empty prefixes not supported yet, pending this PR:
     # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
     # Using SSM for now
-    - name: Get Secrets 2
+    - name: Get Secrets
       uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
       env:
         AWS_REGION:            ${{ env.AWS_REGION }}
@@ -41,15 +41,6 @@ jobs:
         decryption: true
         prefix:     SSM_
         ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
-
-    - name: Get Secrets
-      uses: aws-actions/aws-secretsmanager-get-secrets@v2
-      env:
-        SSM_SECRET_ID: /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
-      with:
-        secret-ids: |
-          SSM,${{ env.SSM_SECRET_ID }}
-        parse-json-secrets: true
 
     - name: Checkout Code
       uses: actions/checkout@v5
