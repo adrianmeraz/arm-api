@@ -39,7 +39,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
       with:
         decryption: true
-        prefix:     SSM_
+        prefix:     PS_
         ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
 
     - name: Checkout Code
@@ -59,7 +59,7 @@ jobs:
     ### Settings -> Actions -> General -> Allow GitHub Actions to create and approve pull requests
     - name: Build image, cache layers, and push to ECR
       env:
-        REPOSITORY_URL:  ${{ env.SSM_AWS_ECR_REPOSITORY_URL }}
+        REPOSITORY_URL:  ${{ env.PS_AWS_ECR_REPOSITORY_URL }}
         IMAGE_TAG:       "latest"
       uses: docker/build-push-action@v6
       with:
@@ -91,7 +91,6 @@ jobs:
       uses: dflook/terraform-apply@v2
       env:
         GITHUB_TOKEN: ${{ env.GH_PAT }}
-        SSM_SHARED_SECRET_ID: /shared/${{ env.SHARED_APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
       with:
         path:  apps/${{ env.APP_NAME }}/environments/${{ env.ENVIRONMENT }}
         auto_approve: true
@@ -101,7 +100,7 @@ jobs:
           aws_region      = "${{ env.AWS_REGION }}"
           aws_secret_key  = "${{ env.AWS_SECRET_ACCESS_KEY }}"
           environment     = "${{ env.ENVIRONMENT }}"
-          shared_app_name = "${{ env.SHARED_APP_NAME }}"
+          shared_app_name = "${{ env.PS_SHARED_APP_NAME }}"
 
     - name: Checkout Main Branch
       uses: actions/checkout@v5
