@@ -15,8 +15,7 @@ post_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=table_name)
 
 @router.get("", response_model=List[Post])
 def read_posts():
-    posts = post_client.get_all_table_items()
-    return posts
+    return post_client.get_all_table_items()
 
 @router.post("", response_model=Post)
 def create_post(post: Post):
