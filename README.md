@@ -76,5 +76,11 @@ uv add httpx
     - repo (all)
     - workflow
 
+# Github Repo Settings
+```
+Settings -> Actions -> General -> Workflow permissions -> Read and write permissions
+Settings -> Actions -> General -> Allow GitHub Actions to create and approve pull requests
+```
+
 ## TODO
 - Add testing instructions
