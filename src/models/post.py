@@ -21,3 +21,4 @@ class Post(BaseDDBModel):
         if not self.sk and self.pk:
             self.sk = self.pk
         return self
+
