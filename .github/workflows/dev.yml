@@ -14,33 +14,51 @@ jobs:
   main:
     name: Build Image, Push to ECR, Apply Terraform Plan, Raise PR
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     env:
       APP_NAME:              ${{ github.event.repository.name }}
       AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_REGION:            ${{ secrets.AWS_REGION }}
+      AWS_ROLE_ARN:          ${{ secrets.AWS_ROLE_ARN }}
+      AWS_REGION:            us-west-2
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ENVIRONMENT:           dev
       GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
     steps:
-    - name: Configure AWS credentials
+    - name: Configure AWS credentials OIDC
       uses: aws-actions/configure-aws-credentials@v5.1.0
       with:
-        aws-access-key-id:     ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region:            ${{ env.AWS_REGION }}
+        role-to-assume:     ${{ env.AWS_ROLE_ARN }}
+        aws-region:         ${{ env.AWS_REGION }}
+        output-credentials: true
+
+#    - name: Configure AWS credentials
+#      uses: aws-actions/configure-aws-credentials@v5.1.0
+#      with:
+#        aws-access-key-id:     ${{ env.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+#        aws-region:            ${{ env.AWS_REGION }}
     # Empty prefixes not supported yet, pending this PR:
     # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
     # Using SSM for now
     - name: Get Secrets
       uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
-      env:
-        AWS_REGION:            ${{ env.AWS_REGION }}
-        AWS_ACCESS_KEY_ID:     ${{ env.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
       with:
         decryption: true
         prefix:     PS_
         ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
+
+#    - name: Get Secrets
+#      uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
+#      env:
+#        AWS_REGION: ${{ env.AWS_REGION }}
+#        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+#        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+#      with:
+#        decryption: true
+#        prefix: PS_
+#        ssm-path: /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
 
     - name: Checkout Code
       uses: actions/checkout@v5
@@ -95,12 +113,14 @@ jobs:
         path:  apps/${{ env.APP_NAME }}/environments/${{ env.ENVIRONMENT }}
         auto_approve: true
         variables: |
-          app_name        = "${{ env.APP_NAME }}"
-          aws_access_key  = "${{ env.AWS_ACCESS_KEY_ID }}"
-          aws_region      = "${{ env.AWS_REGION }}"
-          aws_secret_key  = "${{ env.AWS_SECRET_ACCESS_KEY }}"
-          environment     = "${{ env.ENVIRONMENT }}"
-          shared_app_name = "${{ env.PS_SHARED_APP_NAME }}"
+          app_name          = "${{ env.APP_NAME }}"
+          aws_access_key    = "${{ steps.creds.outputs.aws-access-key-id }}"
+          aws_region        = "${{ env.AWS_REGION }}"
+          aws_secret_key    = "${{ steps.creds.outputs.aws-secret-access-key }}"
+          environment       = "${{ env.ENVIRONMENT }}"
+          github_org        = "${{ github.repository_owner }}"
+          github_repository = "${{ env.APP_NAME }}"
+          shared_app_name   = "${{ env.PS_SHARED_APP_NAME }}"
 
     - name: Checkout Main Branch
       uses: actions/checkout@v5
