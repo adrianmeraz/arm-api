@@ -22,7 +22,7 @@ jobs:
       AWS_ROLE_ARN:          ${{ secrets.AWS_ROLE_ARN }}
       AWS_REGION:            ${{ secrets.AWS_REGION }}
       ENVIRONMENT:           dev
-      GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
+      GH_PAT:                ${{ secrets.GH_PAT }}
     steps:
     - name: Configure AWS credentials OIDC
       uses: aws-actions/configure-aws-credentials@v5.1.0
