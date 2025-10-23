@@ -19,10 +19,8 @@ jobs:
       contents: read
     env:
       APP_NAME:              ${{ github.event.repository.name }}
-      AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_ROLE_ARN:          ${{ secrets.AWS_ROLE_ARN }}
-      AWS_REGION:            us-west-2
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION:            ${{ secrets.AWS_REGION }}
       ENVIRONMENT:           dev
       GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
     steps:
@@ -33,12 +31,6 @@ jobs:
         aws-region:         ${{ env.AWS_REGION }}
         output-credentials: true
 
-#    - name: Configure AWS credentials
-#      uses: aws-actions/configure-aws-credentials@v5.1.0
-#      with:
-#        aws-access-key-id:     ${{ env.AWS_ACCESS_KEY_ID }}
-#        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-#        aws-region:            ${{ env.AWS_REGION }}
     # Empty prefixes not supported yet, pending this PR:
     # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
     # Using SSM for now
@@ -48,17 +40,6 @@ jobs:
         decryption: true
         prefix:     PS_
         ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
-
-#    - name: Get Secrets
-#      uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
-#      env:
-#        AWS_REGION: ${{ env.AWS_REGION }}
-#        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-#        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-#      with:
-#        decryption: true
-#        prefix: PS_
-#        ssm-path: /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
 
     - name: Checkout Code
       uses: actions/checkout@v5
