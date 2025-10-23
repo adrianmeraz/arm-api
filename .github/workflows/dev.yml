@@ -14,31 +14,32 @@ jobs:
   main:
     name: Build Image, Push to ECR, Apply Terraform Plan, Raise PR
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     env:
       APP_NAME:              ${{ github.event.repository.name }}
-      AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_ROLE_ARN:          ${{ secrets.AWS_ROLE_ARN }}
       AWS_REGION:            ${{ secrets.AWS_REGION }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ENVIRONMENT:           dev
-      GH_PAT:                ${{ secrets.GH_PAT }}
+      GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
     steps:
-    - name: Configure AWS credentials
+    - name: Configure AWS credentials OIDC
       uses: aws-actions/configure-aws-credentials@v5.1.0
       with:
-        aws-access-key-id:     ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region:            ${{ env.AWS_REGION }}
+        role-to-assume:     ${{ env.AWS_ROLE_ARN }}
+        aws-region:         ${{ env.AWS_REGION }}
+        output-credentials: true
+
     # Empty prefixes not supported yet, pending this PR:
     # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
     # Using SSM for now
     - name: Get Secrets
-      uses: aws-actions/aws-secretsmanager-get-secrets@v2
-      env:
-        SSM_SECRET_ID: ${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
+      uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
       with:
-        secret-ids: |
-          SSM,${{ env.SSM_SECRET_ID }}
-        parse-json-secrets: true
+        decryption: true
+        prefix:     PS_
+        ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
 
     - name: Checkout Code
       uses: actions/checkout@v5
@@ -52,9 +53,12 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    # Required Github Actions Settings
+    ### Settings -> Actions -> General -> Workflow permissions -> Read and write permissions
+    ### Settings -> Actions -> General -> Allow GitHub Actions to create and approve pull requests
     - name: Build image, cache layers, and push to ECR
       env:
-        REPOSITORY_URL:  ${{ env.SSM_AWS_ECR_REPOSITORY_URL }}
+        REPOSITORY_URL:  ${{ env.PS_AWS_ECR_REPOSITORY_URL }}
         IMAGE_TAG:       "latest"
       uses: docker/build-push-action@v6
       with:
@@ -86,17 +90,18 @@ jobs:
       uses: dflook/terraform-apply@v2
       env:
         GITHUB_TOKEN: ${{ env.GH_PAT }}
-        SSM_SHARED_SECRET_ID: expatmagic/dev/shared/secret
       with:
         path:  apps/${{ env.APP_NAME }}/environments/${{ env.ENVIRONMENT }}
         auto_approve: true
         variables: |
-          app_name                       = "${{ env.APP_NAME }}"
-          aws_access_key                 = "${{ env.AWS_ACCESS_KEY_ID }}"
-          aws_region                     = "${{ env.AWS_REGION }}"
-          aws_secret_key                 = "${{ env.AWS_SECRET_ACCESS_KEY }}"
-          environment                    = "${{ env.ENVIRONMENT }}"
-          shared_secret_id               = "${{ env.SSM_SHARED_SECRET_ID }}"
+          app_name          = "${{ env.APP_NAME }}"
+          aws_access_key    = "${{ steps.creds.outputs.aws-access-key-id }}"
+          aws_region        = "${{ env.AWS_REGION }}"
+          aws_secret_key    = "${{ steps.creds.outputs.aws-secret-access-key }}"
+          environment       = "${{ env.ENVIRONMENT }}"
+          github_org        = "${{ github.repository_owner }}"
+          github_repository = "${{ env.APP_NAME }}"
+          shared_app_name   = "${{ env.PS_SHARED_APP_NAME }}"
 
     - name: Checkout Main Branch
       uses: actions/checkout@v5
@@ -111,6 +116,7 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
+        token: ${{ env.GH_PAT }}
         branch: main-promotion
         delete-branch: true
         title: Promote dev to main branch
