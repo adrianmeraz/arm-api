@@ -1,4 +1,20 @@
 class Subreddit:
 
-    def __init__(self, subreddit):
-        pass
+    def __init__(self, data: dict):
+        self.allow_images: bool | None = data.get('allow_images')
+        self.collapse_deleted_comments: bool | None = data.get('collapse_deleted_comments')
+        self.description: str | None = data.get('description')
+        self.domain: str | None = data.get('domain')
+        self.lang: str | None = data.get('lang')
+        self.link_type: str | None = data.get('link_type')
+        self.name: str | None = data.get('name')
+        self.over_18: bool | None = data.get('over_18')
+        self.public_description: str | None = data.get('public_description')
+        self.public_traffic: bool | None = data.get('public_traffic')
+        self.show_media: bool | None = data.get('show_media')
+        self.public_description: str | None = data.get('public_description')
+        self.public_traffic: bool | None = data.get('public_traffic')
+        self.show_media: bool | None = data.get('show_media')
+        self.sr: str | None = data.get('sr')
+        self.subreddit_type: str | None = data.get('subreddit_type')
+        self.title: str | None = data.get('title')
