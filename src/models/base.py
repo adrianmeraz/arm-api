@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from typing import Any, Dict
 
 import pydantic
 from pydantic import BaseModel
@@ -15,7 +14,7 @@ class BaseDDBModel(BaseModel):
     def now_timestamp() -> int:
         return int(datetime.datetime.now().timestamp())
 
-    def generate_pk(self):
+    def generate_pk(self) -> str:
         pk = f'{self.obj_type}#{self.obj_id}'
         logger.info(f'Generated PK: {pk}')
         return pk
