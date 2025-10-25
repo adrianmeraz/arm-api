@@ -31,9 +31,6 @@ jobs:
         aws-region:         ${{ env.AWS_REGION }}
         output-credentials: true
 
-    # Empty prefixes not supported yet, pending this PR:
-    # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
-    # Using SSM for now
     - name: Get Secrets
       uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
       with:

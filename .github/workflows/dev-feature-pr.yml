@@ -1,0 +1,100 @@
+name: Dev Feature Pull Request
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - '**.py'
+      - '**.yml'
+      - 'Dockerfile'
+      - 'uv.lock'
+      - 'pyproject.toml'
+
+jobs:
+  test:
+    name: Build, Test, Upload Coverage
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: ${{ github.event.repository.name }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ENVIRONMENT: dev
+      GH_PAT: ${{ secrets.GH_PAT }}
+    steps:
+    - name: Configure AWS credentials OIDC
+      uses: aws-actions/configure-aws-credentials@v5.1.0
+      with:
+        role-to-assume: ${{ env.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+        output-credentials: true
+
+    - name: Get Secrets
+      uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
+      with:
+        decryption: true
+        prefix:     PS_
+        ssm-path:   /${{ env.APP_NAME }}/${{ env.ENVIRONMENT }}/secrets
+
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: ‘2’
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: "pyproject.toml"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.9.2"
+        cache: true
+
+    - name: Run tests and generate Coverage Report
+      run: |
+        uv run coverage run -m unittest
+        uv run coverage xml
+
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v5
+      env:
+        CODECOV_TOKEN: ${{ env.PS_CODECOV_TOKEN }}
+      with:
+        fail_ci_if_error: true
+
+    - name: Checkout Terraform Repo
+      uses: actions/checkout@v5
+      with:
+        ref: main
+        repository: ${{ env.TF_REPO }}
+        token: ${{ env.GH_PAT }}
+
+    - name: Set Terraform Working Directory
+      run: |
+        echo "TF_WORKDIR=${{ env.TF_WORKDIR_PREFIX }}/${{ env.ENVIRONMENT }}" >> $GITHUB_ENV
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.13.3
+
+    - name: Terraform Init
+      working-directory: ${{ env.TF_WORKDIR }}
+      id: tf-init
+      run: |
+        terraform init
+
+    - name: Terraform Plan
+      working-directory: ${{ env.TF_WORKDIR }}
+      id: tf-plan
+      run: |
+        terraform plan -input=false -parallelism=50 \
+          -var app_name="${{ env.APP_NAME }}" \
+          -var aws_access_key="${{ steps.creds.outputs.aws-access-key-id }}" \
+          -var aws_region="${{ env.AWS_REGION }}" \
+          -var aws_secret_key="${{ steps.creds.outputs.aws-secret-access-key }}" \
+          -var environment="${{ env.ENVIRONMENT }}" \
+          -var github_org="${{ github.repository_owner }}" \
+          -var github_repository="${{ env.APP_NAME }}" \
+          -var shared_app_name="${{ env.SHARED_APP_NAME }}"
