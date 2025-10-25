@@ -1,3 +1,5 @@
+import typing
+
 from boto3.resources.base import ServiceResource
 from botocore.exceptions import ClientError
 from pydantic.v1 import UUID4
@@ -25,3 +27,12 @@ class DynamoDBClient:
     def get_item(self, item_id: UUID4, **kwargs: dict):
         response = self._table.get_item(Key={'itemId': item_id})
         return response.get('Item', None)
+
+    def batch_write_items(self, items: typing.List[dict], **kwargs: dict):
+        with self._table.batch_writer(overwrite_by_pkeys=True) as batch:
+            for item in items:
+                try:
+                    logger.info(f'Writing batch items: {items}')
+                    batch.put_item(Item=item, **kwargs)
+                except ClientError as e:
+                    raise exceptions.DDBException() from e
