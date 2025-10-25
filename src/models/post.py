@@ -1,5 +1,3 @@
-from typing import Any, Dict
-
 import pydantic
 
 from .base import BaseDDBModel

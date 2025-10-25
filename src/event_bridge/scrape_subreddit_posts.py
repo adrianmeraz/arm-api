@@ -16,4 +16,5 @@ def lambda_handler(event, context):
 def scrape_subreddit_posts(subreddit: str, post_limit: int):
     logger.info(f'Scraping subreddit: {subreddit}')
     with RedditClient() as client:
-        return PostApi.get_subreddit_hot_posts(client, subreddit, limit=post_limit)
+        response = PostApi.get_subreddit_hot_posts(client, subreddit, limit=post_limit)
+

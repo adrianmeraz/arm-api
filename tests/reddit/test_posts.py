@@ -40,6 +40,7 @@ def test_get_subreddit_hot_posts_success():
 
     assert post_2.author == 'ChiefLeef22'
     assert post_2.id == '1oe1qg2'
+    assert post_2.is_active is True
     assert post_2.is_video is False
     assert post_2.num_comments == 316
     assert post_2.preview.all_image_sources == ['https://external-preview.redd.it/Xw7GdwEySMM9cMGT5SAFvSgWpO1nFUlSHmsiosX8PcI.jpeg?auto=webp&amp;s=32d4ad9f84ebb4ad15dd91a4e2fbbfa6c7ce9646']
