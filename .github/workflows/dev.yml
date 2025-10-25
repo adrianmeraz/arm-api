@@ -22,7 +22,7 @@ jobs:
       AWS_ROLE_ARN:          ${{ secrets.AWS_ROLE_ARN }}
       AWS_REGION:            ${{ secrets.AWS_REGION }}
       ENVIRONMENT:           dev
-      GH_PAT:                ${{ secrets.GH_PAT }} # Configure here: https://github.com/settings/personal-access-tokens/
+      GH_PAT:                ${{ secrets.GH_PAT }}
     steps:
     - name: Configure AWS credentials OIDC
       uses: aws-actions/configure-aws-credentials@v5.1.0
@@ -31,9 +31,6 @@ jobs:
         aws-region:         ${{ env.AWS_REGION }}
         output-credentials: true
 
-    # Empty prefixes not supported yet, pending this PR:
-    # https://github.com/aws-actions/aws-secretsmanager-get-secrets/pull/16
-    # Using SSM for now
     - name: Get Secrets
       uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.4.0
       with:
@@ -53,9 +50,6 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    # Required Github Actions Settings
-    ### Settings -> Actions -> General -> Workflow permissions -> Read and write permissions
-    ### Settings -> Actions -> General -> Allow GitHub Actions to create and approve pull requests
     - name: Build image, cache layers, and push to ECR
       env:
         REPOSITORY_URL:  ${{ env.PS_AWS_ECR_REPOSITORY_URL }}

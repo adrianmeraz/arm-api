@@ -1,5 +1,3 @@
-from typing import Any, Dict
-
 import pydantic
 
 from .base import BaseDDBModel
@@ -21,4 +19,3 @@ class Post(BaseDDBModel):
         if not self.sk and self.pk:
             self.sk = self.pk
         return self
-
