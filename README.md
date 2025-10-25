@@ -68,11 +68,19 @@ uv add httpx
 ```
 
 ## Repository Secrets
-- AWS_ACCESS_KEY_ID
+- AWS_ROLE_ARN
 - AWS_REGION
-- AWS_SECRET_ACCESS_KEY
-- GH_PAT
+- GH_PAT 
+  - Configure here: https://github.com/settings/personal-access-tokens/
+  - Must contain the following permissions:
+    - repo (all)
+    - workflow
+
+# Github Repo Settings
+```
+Settings -> Actions -> General -> Workflow permissions -> Read and write permissions
+Settings -> Actions -> General -> Allow GitHub Actions to create and approve pull requests
+```
 
 ## TODO
 - Add testing instructions
-- Add role module for Github Actions using github-actions-serverless IAM policy
