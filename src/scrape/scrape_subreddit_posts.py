@@ -2,7 +2,7 @@ from src import logs
 from src.adapters.post import PostAdapter
 from src.data import post_data
 from src.models.post import Post
-from src.reddit.client import RedditClient
+from src.reddit.client import RedditAsyncClient
 from src.reddit.models.post import Post as RedditPost
 from src.reddit.models.post_listing import PostListing as RedditPostListing
 from src.reddit.post_api import PostApi
@@ -26,4 +26,5 @@ class ScrapeRequest:
 
     async def _scrape_posts(self, subreddit: str):
         logger.info(f'Scraping subreddit: {subreddit}')
-        return await PostApi.get_subreddit_hot_posts(RedditClient(), subreddit=subreddit, limit=self.post_limit)
+        async with RedditAsyncClient() as client:
+            return await PostApi.get_subreddit_hot_posts(client, subreddit=subreddit, limit=self.post_limit)

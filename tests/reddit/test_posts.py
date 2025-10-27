@@ -6,14 +6,14 @@ import httpx
 import pytest
 import respx
 
-from src.reddit.client import RedditClient
+from src.reddit.client import RedditAsyncClient
 from src.reddit.post_api import PostApi
 from tests.fixtures import ROOT_RESOURCE_PATH
 
 
 @respx.mock
-def test_get_subreddit_hot_posts_success():
-    client = RedditClient()
+async def test_get_subreddit_hot_posts_success():
+    client = RedditAsyncClient()
     subreddit = "space"
     limit = 2
 
@@ -31,7 +31,7 @@ def test_get_subreddit_hot_posts_success():
         )
     )
 
-    result = PostApi.get_subreddit_hot_posts(client, subreddit, limit=limit)
+    result = await PostApi.get_subreddit_hot_posts(client, subreddit, limit=limit)
     posts = result.data.children
     post_2 = posts[1]
 
@@ -51,11 +51,11 @@ def test_get_subreddit_hot_posts_success():
 
 @respx.mock
 def test_get_subreddit_hot_posts_http_error():
-    client = RedditClient()
+    client = RedditAsyncClient()
     subreddit = "space"
 
     # mock a 500 response
-    route = respx.get(re.compile(rf"{re.escape(client.base_url)}/r/{subreddit}/hot\.json.*")).mock(
+    route = respx.get(re.compile(rf"{re.escape(str(client.base_url))}/r/{subreddit}/hot\.json.*")).mock(
         return_value=httpx.Response(500, json={"message": "internal error"})
     )
 
