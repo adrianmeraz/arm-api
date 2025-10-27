@@ -1,10 +1,10 @@
 import pydantic
 
-from .base import BaseDDBModel
+from .base import ConfiguredModel
 from pydantic import BaseModel
 
 
-class Post(BaseDDBModel):
+class Post(ConfiguredModel):
     obj_type: str = "POST"
     sk: str = ''
     author: str

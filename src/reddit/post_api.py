@@ -12,7 +12,7 @@ class PostApi(RedditApi):
         headers = {
             'User-Agent': client.user_agent
         }
-        response = httpx.get(url, headers=headers)
+        response = client.client.get(url, headers=headers)
 
         response.raise_for_status()
         return PostListing(response.json())

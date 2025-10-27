@@ -1,6 +1,6 @@
-from .base import BaseDDBModel
+from .base import ConfiguredModel
 
-class Comment(BaseDDBModel):
+class Comment(ConfiguredModel):
     author: str
     body_html: str
     parent_id: str

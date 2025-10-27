@@ -29,8 +29,8 @@ class DynamoDBClient:
         return response.get('Item', None)
 
     def batch_write_items(self, items: typing.List[dict], **kwargs: dict):
-        with self._table.batch_writer(overwrite_by_pkeys=True) as batch:
-            logger.info(f'Writing batch items: {items}')
+        with self._table.batch_writer() as batch:
+            logger.info(f'Writing {len(items)} batch items')
             for item in items:
                 try:
                     batch.put_item(Item=item, **kwargs)

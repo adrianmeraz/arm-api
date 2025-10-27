@@ -9,7 +9,7 @@ from src import logs
 logger = logs.get_logger()
 
 
-class BaseDDBModel(BaseModel):
+class ConfiguredModel(BaseModel):
     @staticmethod
     def now_timestamp() -> int:
         return int(datetime.datetime.now().timestamp())

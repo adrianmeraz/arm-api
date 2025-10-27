@@ -1,8 +1,9 @@
+from src.models.post import Post
 from src.reddit.models.post import Post as RedditPost
 
 class PostAdapter:
     @classmethod
-    def to_ddb_post(cls, r_post: RedditPost) -> dict:
+    def to_ddb_post(cls, r_post: RedditPost) -> Post:
         """Convert a Reddit post object to a DynamoDB post dictionary."""
         ddb_post = {
             'pk': f"POST#{r_post.id}",
@@ -16,4 +17,4 @@ class PostAdapter:
             'permalink': f"https://reddit.com{r_post.permalink}",
             'title': r_post.title,
         }
-        return ddb_post
+        return Post(**ddb_post)
