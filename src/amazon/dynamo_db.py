@@ -30,9 +30,9 @@ class DynamoDBClient:
 
     def batch_write_items(self, items: typing.List[dict], **kwargs: dict):
         with self._table.batch_writer(overwrite_by_pkeys=True) as batch:
+            logger.info(f'Writing batch items: {items}')
             for item in items:
                 try:
-                    logger.info(f'Writing batch items: {items}')
                     batch.put_item(Item=item, **kwargs)
                 except ClientError as e:
                     raise exceptions.DDBException() from e
