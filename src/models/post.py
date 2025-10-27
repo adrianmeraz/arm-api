@@ -1,6 +1,7 @@
 import pydantic
 
 from .base import BaseDDBModel
+from pydantic import BaseModel
 
 
 class Post(BaseDDBModel):
@@ -19,3 +20,12 @@ class Post(BaseDDBModel):
         if not self.sk and self.pk:
             self.sk = self.pk
         return self
+
+
+class PostOut(BaseModel):
+    author: str
+    body_html: str
+    category: str
+    image_url: str
+    permalink: str
+    title: str

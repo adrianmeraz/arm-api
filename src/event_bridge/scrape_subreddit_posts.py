@@ -1,12 +1,8 @@
 from src import logs
-from src.amazon import dynamodb, param_store
-from src.amazon.dynamo_db import DynamoDBClient
 from src.reddit.client import RedditClient
 from src.reddit.post_api import PostApi
 
 logger = logs.get_logger()
-table_name = param_store.get_secret('AWS_DYNAMO_DB_TABLE_NAME')
-post_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=table_name)
 
 def lambda_handler(event, context):
     logger.info(f'event: {event}, context: {context}')

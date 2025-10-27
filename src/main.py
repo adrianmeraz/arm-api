@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from mangum import Mangum
 
 from src import logs
-from src.api.v1.items import router as items_router
-from src.api.v1.posts import router as posts_router
+from src.api.v1.api_items import router as items_router
+from src.api.v1.api_posts import router as posts_router
 
 app = FastAPI()
 logger = logs.get_logger()
