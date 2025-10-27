@@ -17,3 +17,4 @@ def read_posts():
 @router.post("", response_model=Post)
 def create_post(post: Post):
     return post_data.create_post(post)
+
