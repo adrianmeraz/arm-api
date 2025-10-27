@@ -88,20 +88,15 @@ jobs:
         path:  apps/${{ env.APP_NAME }}/environments/${{ env.ENVIRONMENT }}
         auto_approve: true
         variables: |
-          app_name          = "${{ env.APP_NAME }}"
-          aws_access_key    = "${{ steps.creds.outputs.aws-access-key-id }}"
-          aws_region        = "${{ env.AWS_REGION }}"
-          aws_secret_key    = "${{ steps.creds.outputs.aws-secret-access-key }}"
-          budget_config     = "${{
-            {
-              "limit_amount": 20,
-              "subscriber_email_addresses": ["${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"]
-            } | toJson
-          }}"
-          environment       = "${{ env.ENVIRONMENT }}"
-          github_org        = "${{ github.repository_owner }}"
-          github_repository = "${{ env.APP_NAME }}"
-          shared_app_name   = "${{ env.PS_SHARED_APP_NAME }}"
+          app_name            = "${{ env.APP_NAME }}"
+          aws_access_key      = "${{ steps.creds.outputs.aws-access-key-id }}"
+          aws_region          = "${{ env.AWS_REGION }}"
+          aws_secret_key      = "${{ steps.creds.outputs.aws-secret-access-key }}"
+          budget_limit_amount = "20"
+          environment         = "${{ env.ENVIRONMENT }}"
+          github_org          = "${{ github.repository_owner }}"
+          github_repository   = "${{ env.APP_NAME }}"
+          shared_app_name     = "${{ env.PS_SHARED_APP_NAME }}"
 
     - name: Checkout Main Branch
       uses: actions/checkout@v5
