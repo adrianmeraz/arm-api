@@ -7,7 +7,7 @@ import pytest
 import respx
 
 from src.reddit.client import RedditClient
-from src.reddit.subreddits import Subreddit
+from src.reddit.post_api import PostApi
 from tests.fixtures import ROOT_RESOURCE_PATH
 
 
@@ -31,7 +31,7 @@ def test_get_subreddit_hot_posts_success():
         )
     )
 
-    result = Subreddit.get_subreddit_hot_posts(client, subreddit, limit=limit)
+    result = PostApi.get_subreddit_hot_posts(client, subreddit, limit=limit)
     posts = result.data.children
     post_2 = posts[1]
 
@@ -60,7 +60,7 @@ def test_get_subreddit_hot_posts_http_error():
     )
 
     with pytest.raises(httpx.HTTPStatusError):
-        Subreddit.get_subreddit_hot_posts(client, subreddit)
+        PostApi.get_subreddit_hot_posts(client, subreddit)
 
     assert route.called
 
