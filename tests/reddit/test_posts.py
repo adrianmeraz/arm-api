@@ -12,6 +12,7 @@ from tests.fixtures import ROOT_RESOURCE_PATH
 
 
 @respx.mock
+@pytest.mark.asyncio
 async def test_get_subreddit_hot_posts_success():
     client = RedditAsyncClient()
     subreddit = "space"
@@ -50,17 +51,19 @@ async def test_get_subreddit_hot_posts_success():
     assert post_2.ups == 5948
 
 @respx.mock
-def test_get_subreddit_hot_posts_http_error():
-    client = RedditAsyncClient()
+@pytest.mark.asyncio
+async def test_get_subreddit_hot_posts_http_error():
     subreddit = "space"
+    limit = 10
 
     # mock a 500 response
-    route = respx.get(re.compile(rf"{re.escape(str(client.base_url))}/r/{subreddit}/hot\.json.*")).mock(
+    route = respx.get(f'https://www.reddit.com/r/{subreddit}/hot.json').mock(
         return_value=httpx.Response(500, json={"message": "internal error"})
     )
 
     with pytest.raises(httpx.HTTPStatusError):
-        PostApi.get_subreddit_hot_posts(client, subreddit)
+        async with RedditAsyncClient() as client:
+            await PostApi.get_subreddit_hot_posts(client=client, subreddit=subreddit, limit=limit)
 
     assert route.called
 
