@@ -8,6 +8,9 @@ _table_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=_table_name)
 def create_post(post: Post):
     return _table_client.create_item(post.model_dump(mode='json'))
 
+def delete_post(post_id: str):
+    return _table_client._table.delete_item(Key={'pk': post_id})
+
 def batch_create_posts(posts: list[Post]):
     return _table_client.batch_write_items([post.model_dump(mode='json') for post in posts])
 

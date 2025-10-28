@@ -18,3 +18,6 @@ def read_posts():
 def create_post(post: Post):
     return post_data.create_post(post)
 
+@router.delete("", response_model=Post)
+def delete_post(post_id: str):
+    return post_data.delete_post(post_id)
