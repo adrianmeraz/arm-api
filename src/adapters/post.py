@@ -12,7 +12,7 @@ class PostAdapter:
             'author': r_post.author,
             'body_html': r_post.self_text_html or '',
             'category': r_post.subreddit,
-            'image_url': r_post.preview.all_image_sources[0] if r_post.preview.all_image_sources else '',
+            'image_url': r_post.preview.all_unescaped_image_sources[0] if r_post.preview.all_unescaped_image_sources else '',
             'is_locked': r_post.locked,
             'permalink': f"https://reddit.com{r_post.permalink}",
             'title': r_post.title,

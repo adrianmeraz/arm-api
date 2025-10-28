@@ -1,5 +1,4 @@
 import json
-import re
 from importlib.resources import open_text
 
 import httpx
@@ -44,7 +43,7 @@ async def test_get_subreddit_hot_posts_success():
     assert post_2.is_active is True
     assert post_2.is_video is False
     assert post_2.num_comments == 316
-    assert post_2.preview.all_image_sources == ['https://external-preview.redd.it/Xw7GdwEySMM9cMGT5SAFvSgWpO1nFUlSHmsiosX8PcI.jpeg?auto=webp&amp;s=32d4ad9f84ebb4ad15dd91a4e2fbbfa6c7ce9646']
+    assert post_2.preview.all_unescaped_image_sources == ['https://external-preview.redd.it/Xw7GdwEySMM9cMGT5SAFvSgWpO1nFUlSHmsiosX8PcI.jpeg?auto=webp&s=32d4ad9f84ebb4ad15dd91a4e2fbbfa6c7ce9646']
     assert post_2.url == 'https://arstechnica.com/space/2025/10/texas-lawmakers-double-down-on-discovery-call-for-doj-investigation-into-smithsonian/'
     assert post_2.score == 5948
     assert post_2.subreddit == 'space'
