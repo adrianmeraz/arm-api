@@ -23,6 +23,7 @@ class Post(ConfiguredModel):
 
 
 class PostOut(BaseModel):
+    obj_id: str
     author: str
     body_html: str
     category: str

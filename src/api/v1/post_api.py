@@ -18,6 +18,8 @@ def read_posts():
 def create_post(post: Post):
     return post_data.create_post(post)
 
-@router.delete("", response_model=Post)
+@router.delete("/{post_id}")
 def delete_post(post_id: str):
-    return post_data.delete_post(post_id)
+    pk = Post.create_pk(obj_type='post', obj_id=post_id)
+    logger.info(f'Deleting post with PK: {pk}, SK: {pk}')
+    return post_data.delete_post(post_pk=pk)
