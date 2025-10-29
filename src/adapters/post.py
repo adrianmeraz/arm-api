@@ -5,7 +5,8 @@ class PostAdapter:
     @classmethod
     def to_ddb_post(cls, r_post: RedditPost) -> Post:
         """Convert a Reddit post object to a DynamoDB post dictionary."""
-        image_url = r_post.preview.all_unescaped_image_sources[0]
+        srcs = r_post.preview.all_unescaped_image_sources
+        image_url = srcs[0] if srcs else ''
         ddb_post = {
             'pk': f"POST#{r_post.id}",
             'sk': f"POST#{r_post.id}",

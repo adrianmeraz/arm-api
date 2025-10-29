@@ -20,6 +20,6 @@ def create_post(post: Post):
 
 @router.delete("/{post_id}")
 def delete_post(post_id: str):
-    pk = Post.create_pk(obj_type='post', obj_id=post_id)
-    logger.info(f'Deleting post with PK: {pk}, SK: {pk}')
+    pk = sk = Post.generate_key(obj_type='post', obj_id=post_id)
+    logger.info(f'Deleting post with PK: {pk}, SK: {sk}')
     return post_data.delete_post(post_pk=pk)

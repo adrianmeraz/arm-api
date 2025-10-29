@@ -52,7 +52,7 @@ def test_delete_post(mock_dynamo_client):
 
     # Verify
     mock_dynamo_client._table.delete_item.assert_called_once_with(
-        Key={"pk": post_id}
+        Key={'pk': post_id, 'sk': post_id}
     )
     assert result == {"ResponseMetadata": {"RequestId": "test"}}
 
