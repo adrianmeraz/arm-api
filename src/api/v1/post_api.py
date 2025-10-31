@@ -23,3 +23,8 @@ def delete_post(post_id: str):
     pk = sk = Post.generate_key(obj_type='post', obj_id=post_id)
     logger.info(f'Deleting post with PK: {pk}, SK: {sk}')
     return post_data.delete_post(post_pk=pk)
+
+@router.delete("")
+def delete_all_posts():
+    logger.info(f'Deleting all posts')
+    return post_data.delete_all_posts()

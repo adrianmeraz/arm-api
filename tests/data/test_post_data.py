@@ -45,14 +45,15 @@ def test_delete_post(mock_dynamo_client):
     """Test deleting a post by ID."""
     # Setup
     post_id = "POST#123"
-    mock_dynamo_client._table.delete_item.return_value = {"ResponseMetadata": {"RequestId": "test"}}
+    mock_dynamo_client.delete_item.return_value = {"ResponseMetadata": {"RequestId": "test"}}
 
     # Execute
     result = post_data.delete_post(post_id)
 
     # Verify
-    mock_dynamo_client._table.delete_item.assert_called_once_with(
-        Key={'pk': post_id, 'sk': post_id}
+    mock_dynamo_client.delete_item.assert_called_once_with(
+        hash_key=post_id,
+        sort_key=post_id
     )
     assert result == {"ResponseMetadata": {"RequestId": "test"}}
 

@@ -9,10 +9,10 @@ def create_post(post: Post):
     return _table_client.create_item(post.model_dump(mode='json'))
 
 def delete_post(post_pk: str):
-    return _table_client._table.delete_item(Key={
-        'pk': post_pk,
-        'sk': post_pk,
-    })
+    return _table_client.delete_item(hash_key=post_pk, sort_key=post_pk)
+
+def delete_all_posts():
+    return _table_client.delete_all_items()
 
 def batch_create_posts(posts: list[Post]):
     return _table_client.batch_write_items([post.model_dump(mode='json') for post in posts])

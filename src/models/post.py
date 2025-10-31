@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 class Post(ConfiguredModel):
     obj_type: str = 'POST'
-    pk: str = 'POST#'
-    sk: str = 'POST#'
+    pk: str = ''
+    sk: str = ''
     author: str
     body_html: str
     category: str
