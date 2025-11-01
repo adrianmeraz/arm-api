@@ -1,3 +1,5 @@
+import html
+
 class Post:
 
     class Preview:
@@ -10,6 +12,10 @@ class Post:
                 self.width = data.get('width')
                 self.height = data.get('height')
 
+            @property
+            def unescaped_url(self):
+                return html.unescape(self.url) if self.url else None
+
         class Image:
             def __init__(self, data: dict):
                 self.source = Post.Preview.Source(data.get('source', {}))
@@ -18,8 +24,8 @@ class Post:
                 self.id = data.get('id')
 
         @property
-        def all_image_sources(self):
-            return [image.source.url for image in self.images]
+        def all_unescaped_image_sources(self):
+            return [image.source.unescaped_url for image in self.images]
 
     def __init__(self, data: dict):
         self.archived = data.get('archived')

@@ -1,10 +1,12 @@
 import pydantic
 
-from .base import BaseDDBModel
+from .base import ConfiguredModel
+from pydantic import BaseModel
 
 
-class Post(BaseDDBModel):
-    obj_type: str = "POST"
+class Post(ConfiguredModel):
+    obj_type: str = 'POST'
+    pk: str = ''
     sk: str = ''
     author: str
     body_html: str
@@ -15,7 +17,19 @@ class Post(BaseDDBModel):
     title: str
 
     @pydantic.model_validator(mode='after')
-    def validate_sk(self):
-        if not self.sk and self.pk:
+    def validate_keys(self):
+        if not self.pk:
+            self.pk = self.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
+        if not self.sk:
             self.sk = self.pk
         return self
+
+
+class PostOut(BaseModel):
+    obj_id: str
+    author: str
+    body_html: str
+    category: str
+    image_url: str
+    permalink: str
+    title: str
