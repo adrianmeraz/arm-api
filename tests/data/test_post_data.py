@@ -1,5 +1,6 @@
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+import pydantic
 
 from src.models.post import Post
 from src.data import post_data
@@ -97,10 +98,22 @@ def test_get_all_posts(mock_dynamo_client, sample_post):
 
 def test_create_post_validates_data(mock_dynamo_client):
     """Test that invalid post data raises validation error."""
-    with pytest.raises(ValueError):
-        # Missing required fields should raise ValueError
-        invalid_post = Post(
-            author="test_author",
-            # missing required fields
-            title="Test Post"
-        )
+    with pytest.raises(pydantic.ValidationError):
+        # Missing required fields should raise ValidationError when using model_validate
+        Post.model_validate({"author": "test_author", "title": "Test Post"})
+
+
+def test_get_post(mock_dynamo_client, sample_post):
+    """Test retrieving a single post by id uses generated key and returns item."""
+    # Arrange
+    post_id = "123"
+    expected_pk = Post.generate_key(obj_type='post', obj_id=post_id)
+    expected_item = sample_post.model_dump(mode='json')
+    mock_dynamo_client.get_item.return_value = expected_item
+
+    # Act
+    result = post_data.get_post(post_id)
+
+    # Assert
+    mock_dynamo_client.get_item.assert_called_once_with(item_id=expected_pk, sort_key=expected_pk)
+    assert result == expected_item

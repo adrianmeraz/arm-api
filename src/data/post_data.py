@@ -14,6 +14,15 @@ def delete_post(post_pk: str):
 def delete_all_posts():
     return _table_client.delete_all_items()
 
+def get_post(post_id: str):
+    """Retrieve a single post by its object id.
+
+    This builds the DynamoDB key using the model's key generator so callers
+    can pass the original post id (e.g. reddit id) rather than the full PK.
+    """
+    pk = sk = Post.generate_key(obj_type='post', obj_id=post_id)
+    return _table_client.get_item(item_id=pk, sort_key=sk)
+
 def batch_create_posts(posts: list[Post]):
     return _table_client.batch_write_items([post.model_dump(mode='json') for post in posts])
 
