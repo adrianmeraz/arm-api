@@ -5,6 +5,7 @@ from src import logs
 from src.api.scrape.scrape_subreddit_posts import router as scrape_router
 from src.api.v1.item_api import router as items_router
 from src.api.v1.post_api import router as posts_router
+from src.api.v1.comment_api import router as comments_router
 
 app = FastAPI()
 logger = logs.get_logger()
@@ -16,5 +17,6 @@ def read_root():
 
 app.include_router(items_router, prefix="/items", tags=["items"])
 app.include_router(posts_router, prefix="/posts", tags=["posts"])
+app.include_router(comments_router, prefix="/comments", tags=["comments"])
 app.include_router(scrape_router, prefix="/scrape", tags=["scrape"])
 handler = Mangum(app, lifespan="off")

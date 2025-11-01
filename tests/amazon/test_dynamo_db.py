@@ -39,8 +39,8 @@ def test_get_all_table_items_empty(mock_dynamodb_table, dynamodb_client):
 
 def test_get_all_table_items_with_data(mock_dynamodb_table, dynamodb_client):
     test_items = [
-        {"itemId": str(uuid.uuid4()), "sortKey": "test1", "data": "value1"},
-        {"itemId": str(uuid.uuid4()), "sortKey": "test2", "data": "value2"},
+        {"itemId": uuid.uuid4().hex, "sortKey": "test1", "data": "value1"},
+        {"itemId": uuid.uuid4().hex, "sortKey": "test2", "data": "value2"},
     ]
     mock_dynamodb_table.scan.return_value = {"Items": test_items}
 
@@ -52,7 +52,7 @@ def test_get_all_table_items_with_data(mock_dynamodb_table, dynamodb_client):
 
 def test_create_item_success(mock_dynamodb_table, dynamodb_client):
     item = {
-        "itemId": str(uuid.uuid4()),
+        "itemId": uuid.uuid4().hex,
         "sortKey": "test",
         "data": "test_value"
     }
@@ -80,7 +80,7 @@ def test_create_item_failure(mock_dynamodb_table, dynamodb_client):
 
 
 def test_delete_item(mock_dynamodb_table, dynamodb_client):
-    item_id = str(uuid.uuid4())
+    item_id = uuid.uuid4().hex
     sort_key = "test"
     mock_dynamodb_table.delete_item.return_value = {}
 
@@ -96,8 +96,8 @@ def test_delete_item(mock_dynamodb_table, dynamodb_client):
 
 def test_delete_all_items(mock_dynamodb_table, dynamodb_client):
     items = [
-        {"itemId": str(uuid.uuid4()), "sortKey": "test1", "data": "value1"},
-        {"itemId": str(uuid.uuid4()), "sortKey": "test2", "data": "value2"},
+        {"itemId": uuid.uuid4().hex, "sortKey": "test1", "data": "value1"},
+        {"itemId": uuid.uuid4().hex, "sortKey": "test2", "data": "value2"},
     ]
     mock_dynamodb_table.scan.return_value = {"Items": items}
 
@@ -122,7 +122,7 @@ def test_delete_all_items(mock_dynamodb_table, dynamodb_client):
 
 
 def test_get_item(mock_dynamodb_table, dynamodb_client):
-    item_id = str(uuid.uuid4())
+    item_id = uuid.uuid4().hex
     item = {
         "itemId": item_id,
         "sortKey": "test",
@@ -139,14 +139,14 @@ def test_get_item(mock_dynamodb_table, dynamodb_client):
 
 def test_get_item_not_found(mock_dynamodb_table, dynamodb_client):
     mock_dynamodb_table.get_item.return_value = {}
-    result = dynamodb_client.get_item(str(uuid.uuid4()), "test")
+    result = dynamodb_client.get_item(uuid.uuid4().hex, "test")
     assert result is None
 
 
 def test_batch_write_items_success(mock_dynamodb_table, dynamodb_client):
     items = [
-        {"itemId": str(uuid.uuid4()), "sortKey": "test1", "data": "value1"},
-        {"itemId": str(uuid.uuid4()), "sortKey": "test2", "data": "value2"},
+        {"itemId": uuid.uuid4().hex, "sortKey": "test1", "data": "value1"},
+        {"itemId": uuid.uuid4().hex, "sortKey": "test2", "data": "value2"},
     ]
 
     # Mock the batch writer context manager
