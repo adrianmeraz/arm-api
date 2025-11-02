@@ -1,9 +1,11 @@
+from src import logs
 from src.amazon import dynamodb, param_store
 from src.amazon.dynamo_db import DynamoDBClient
 from src.models.post import Post
 
 _table_name = param_store.get_secret('AWS_DYNAMO_DB_TABLE_NAME')
 _table_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=_table_name)
+logger = logs.get_logger()
 
 def create_post(post: Post):
     """Create a post record in DynamoDB.
@@ -25,11 +27,11 @@ def create_post(post: Post):
     """
     return _table_client.create_item(post.model_dump(mode='json'))
 
-def delete_post(post_pk: str):
+def delete_post(post_id: str):
     """Delete a single post from DynamoDB by its primary key.
 
     Args:
-        post_pk: The partition key (and sort key) of the post to delete. The
+        post_id: The partition key (and sort key) of the post to delete. The
             functions in this module commonly use generated keys of the form
             "POST#<id>".
 
@@ -37,7 +39,9 @@ def delete_post(post_pk: str):
         The raw response returned by the DynamoDB client's `delete_item`
         operation.
     """
-    return _table_client.delete_item(hash_key=post_pk, sort_key=post_pk)
+    pk = sk = Post.generate_key(obj_type='POST', obj_id=post_id)
+    logger.info(f'Deleting post with PK: {pk}, SK: {sk}')
+    return _table_client.delete_item(hash_key=post_id, sort_key=post_id)
 
 def delete_all_posts():
     """Delete all posts from the DynamoDB table.
@@ -49,6 +53,7 @@ def delete_all_posts():
         The result of the DynamoDB client's delete-all operation (usually
         None) or raises an exception on failure.
     """
+    logger.info(f'Deleting all posts')
     return _table_client.delete_all_items()
 
 def get_post(post_id: str):
@@ -64,7 +69,7 @@ def get_post(post_id: str):
         The retrieved item as a dict if found, or `None` if the item does
         not exist.
     """
-    pk = sk = Post.generate_key(obj_type='post', obj_id=post_id)
+    pk = sk = Post.generate_key(obj_type='POST', obj_id=post_id)
     return _table_client.get_item(hash_key=pk, sort_key=sk)
 
 def batch_create_posts(posts: list[Post]):

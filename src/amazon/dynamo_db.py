@@ -1,8 +1,6 @@
 import typing
 
-from boto3.resources.base import ServiceResource
 from botocore.exceptions import ClientError
-from pydantic.v1 import UUID4
 
 from src import exceptions, logs
 
@@ -10,7 +8,9 @@ logger = logs.get_logger()
 
 
 class DynamoDBClient:
-    def __init__(self, dynamodb_client: ServiceResource, table_name: str):
+    def __init__(self, dynamodb_client: typing.Any, table_name: str):
+        # boto3 resource objects provide a Table() factory; use typing.Any for
+        # the client to avoid static-analysis resolving boto3 internals here.
         self._table = dynamodb_client.Table(table_name)
         self._key_schema = {schema['KeyType']: schema['AttributeName'] for schema in self._table.key_schema}
 
@@ -22,9 +22,49 @@ class DynamoDBClient:
     def range_key_attribute_name(self):
         return self._key_schema['RANGE']
 
-    def get_all_table_items(self, **kwargs):
-        response = self._table.scan(**kwargs)
-        return response.get('Items', [])
+    def get_all_table_items(self, limit: int = None, **kwargs):
+        """Scan the table and return all items, using pagination.
+
+        This method will page through DynamoDB scan results until there are no
+        more pages or until ``limit`` items have been collected (if provided).
+
+        Args:
+            limit: Optional maximum number of items to return. If None, all
+                items from the table will be returned.
+            **kwargs: Additional keyword arguments passed through to ``scan``.
+
+        Returns:
+            A list of item dicts.
+        """
+        items = []
+        scan_kwargs: dict[str, typing.Any] = dict(**kwargs)
+
+        while True:
+            # if a global limit is provided, pass remaining as the per-scan Limit
+            if limit is not None:
+                remaining = limit - len(items)
+                if remaining <= 0:
+                    break
+                # DynamoDB expects an integer Limit; ensure correct type.
+                scan_kwargs['Limit'] = int(remaining)
+
+            response = self._table.scan(**scan_kwargs)
+            page_items = response.get('Items', [])
+            items.extend(page_items)
+
+            # If we've reached the requested limit, stop
+            if limit is not None and len(items) >= limit:
+                return items[:limit]
+
+            # Continue to next page if present
+            if 'LastEvaluatedKey' in response:
+                scan_kwargs['ExclusiveStartKey'] = response['LastEvaluatedKey']
+                # continue loop to fetch next page
+                continue
+
+            break
+
+        return items
 
     def create_item(self, item: dict, **kwargs: dict):
         try:

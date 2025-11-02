@@ -20,7 +20,7 @@ class ConfiguredModel(BaseModel):
 
     @staticmethod
     def generate_key(obj_type: str, obj_id: str) -> str:
-        key = f'{obj_type}#{obj_id}'
+        key = f'{obj_type.upper()}#{obj_id}'
         logger.info(f'Generated key: {key}')
         return key
 

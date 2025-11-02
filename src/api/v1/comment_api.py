@@ -25,10 +25,7 @@ def create_comment(comment: Comment):
 @router.delete("/{comment_id}")
 @decorators.require_dev_environment
 def delete_comment(comment_id: str):
-    # Fix this
-    pk = sk = Comment.generate_key(obj_type='COMMENT', obj_id=comment_id)
-    logger.info(f'Deleting comment with PK: {pk}, SK: {sk}')
-    return comment_data.delete_comment(comment_pk=pk)
+    return comment_data.delete_comment(comment_id=comment_id)
 
 
 @router.delete("")
@@ -36,4 +33,3 @@ def delete_comment(comment_id: str):
 def delete_all_comments():
     logger.info(f'Deleting all comments')
     return comment_data.delete_all_comments()
-
