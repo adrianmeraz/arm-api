@@ -13,7 +13,7 @@ def make_comment_payload(obj_id: str = "c1"):
         "author": "user1",
         "body_html": "<p>hi</p>",
         "parent_id": "POST#p1",
-        "permalink": "/r/test/comments/c1"
+        "permalink": "/r/test/comment/c1"
     }
 
 
@@ -21,7 +21,7 @@ def make_comment_payload(obj_id: str = "c1"):
 def test_read_comments(mock_get_all):
     mock_get_all.return_value = [make_comment_payload("c1"), make_comment_payload("c2")]
 
-    resp = client.get("/comments")
+    resp = client.get("/comment")
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
@@ -34,7 +34,7 @@ def test_create_comment(mock_create):
     payload = make_comment_payload()
     mock_create.return_value = payload
 
-    resp = client.post("/comments", json=payload)
+    resp = client.post("/comment", json=payload)
     assert resp.status_code == 200
     data = resp.json()
     assert data["author"] == payload["author"]
@@ -45,7 +45,7 @@ def test_create_comment(mock_create):
 def test_delete_comment(mock_delete):
     mock_delete.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
 
-    resp = client.delete("/comments/c1")
+    resp = client.delete("/comment/c1")
     assert resp.status_code == 200
     data = resp.json()
     assert "ResponseMetadata" in data
@@ -55,7 +55,7 @@ def test_delete_comment(mock_delete):
 def test_delete_all_comments(mock_delete_all):
     mock_delete_all.return_value = None
 
-    resp = client.delete("/comments")
+    resp = client.delete("/comment")
     assert resp.status_code == 200
     assert resp.text == "null"
 
