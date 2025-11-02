@@ -12,7 +12,7 @@ def create_comment(comment: Comment):
     return _table_client.create_item(comment.model_dump(mode='json'))
 
 
-def delete_comment(post_id: str, comment_id: str):
+def delete_post_comment(post_id: str, comment_id: str):
     """Delete a comment by its id.
 
     For simplicity this function treats the comment's partition and sort key
@@ -34,7 +34,7 @@ def delete_comment(post_id: str, comment_id: str):
     return _table_client.delete_item(hash_key=pk, sort_key=sk)
 
 
-def get_comment(post_id: str, comment_id: str):
+def get_post_comment(post_id: str, comment_id: str):
     """Retrieve a single comment by its id.
 
     For simplicity this builds the key as `COMMENT#<comment_id>` for both
@@ -52,11 +52,11 @@ def get_comment(post_id: str, comment_id: str):
     return _table_client.get_item(hash_key=pk, sort_key=sk)
 
 
-def delete_all_comments(post_id: str):
+def delete_all_post_comments(post_id: str):
     return _table_client.delete_all_items()
 
 
-def batch_create_comments(comments: list[Comment]):
+def batch_create_post_comments(comments: list[Comment]):
     return _table_client.batch_write_items([c.model_dump(mode='json') for c in comments])
 
 

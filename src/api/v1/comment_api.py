@@ -26,11 +26,11 @@ def create_comment(post_id: str, comment: Comment):
 @router.delete("/{comment_id}")
 @decorators.require_dev_environment
 def delete_comment(post_id: str, comment_id: str):
-    return comment_data.delete_comment(post_id=post_id, comment_id=comment_id)
+    return comment_data.delete_post_comment(post_id=post_id, comment_id=comment_id)
 
 
 @router.delete("")
 @decorators.require_dev_environment
 def delete_all_comments(post_id: str):
     logger.info(f'Deleting all comments')
-    return comment_data.delete_all_comments(post_id=post_id)
+    return comment_data.delete_all_post_comments(post_id=post_id)

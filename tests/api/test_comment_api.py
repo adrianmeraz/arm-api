@@ -42,7 +42,7 @@ def test_create_comment(mock_create):
     assert data["obj_id"] == payload["obj_id"]
 
 
-@patch("src.data.comment_data.delete_comment")
+@patch("src.data.comment_data.delete_post_comment")
 def test_delete_comment(mock_delete):
     mock_delete.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
 
@@ -52,7 +52,7 @@ def test_delete_comment(mock_delete):
     assert "ResponseMetadata" in data
 
 
-@patch("src.data.comment_data.delete_all_comments")
+@patch("src.data.comment_data.delete_all_post_comments")
 def test_delete_all_comments(mock_delete_all):
     mock_delete_all.return_value = None
 
