@@ -115,5 +115,5 @@ def test_get_post(mock_dynamo_client, sample_post):
     result = post_data.get_post(post_id)
 
     # Assert
-    mock_dynamo_client.get_item.assert_called_once_with(item_id=expected_pk, sort_key=expected_pk)
+    mock_dynamo_client.get_item.assert_called_once_with(hash_key=expected_pk, sort_key=expected_pk)
     assert result == expected_item
