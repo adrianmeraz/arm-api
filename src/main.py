@@ -2,14 +2,16 @@ from fastapi import FastAPI
 from mangum import Mangum
 
 from src import logs
+from src.amazon import param_store
 from src.api.scrape.scrape_subreddit_posts import router as scrape_router
+from src.api.v1.comment_api import router as comments_router
 from src.api.v1.item_api import router as items_router
 from src.api.v1.post_api import router as posts_router
-from src.api.v1.comment_api import router as comments_router
 
 app = FastAPI()
+environment = param_store.get_secret('ENVIRONMENT')
 logger = logs.get_logger()
-logger.info("Starting up ARM API")
+logger.info(f'Starting up ARM API in {environment}')
 
 @app.get("/")
 def read_root():

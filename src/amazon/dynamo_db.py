@@ -62,10 +62,10 @@ class DynamoDBClient:
         except ClientError as e:
             raise exceptions.DDBException() from e
 
-    def get_item(self, item_id: str, sort_key: str, **kwargs: dict):
+    def get_item(self, hash_key: str, sort_key: str, **kwargs: dict):
         response = self._table.get_item(
             Key={
-                self.hash_key_attribute_name: str(item_id),
+                self.hash_key_attribute_name: hash_key,
                 self.range_key_attribute_name: sort_key
             },
             **kwargs

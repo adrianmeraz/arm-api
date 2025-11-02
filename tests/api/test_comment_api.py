@@ -1,11 +1,8 @@
-import json
 from unittest.mock import patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from src.main import app
-from src.models.comment import Comment
 
 client = TestClient(app)
 
