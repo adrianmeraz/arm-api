@@ -17,8 +17,8 @@ logger.info(f'Starting up ARM API in {environment}')
 def read_root():
     return {"message": "Welcome to the Adrian Site API"}
 
-app.include_router(items_router, prefix="/items", tags=["items"])
-app.include_router(posts_router, prefix="/posts", tags=["posts"])
-app.include_router(comments_router, prefix="/comments", tags=["comments"])
+app.include_router(items_router, prefix="/item", tags=["items"])
+app.include_router(posts_router, prefix="/post", tags=["posts"])
+app.include_router(comments_router, prefix="/comment", tags=["comments"])
 app.include_router(scrape_router, prefix="/scrape", tags=["scrape"])
 handler = Mangum(app, lifespan="off")
