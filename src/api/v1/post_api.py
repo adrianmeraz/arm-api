@@ -15,8 +15,8 @@ def get_post(post_id: str):
 
 
 @router.get("", response_model=List[PostOut])
-def get_posts():
-    return post_data.get_all_posts()
+def get_posts(limit: int = 25):
+    return post_data.get_all_posts(limit=limit)
 
 @router.post("", response_model=Post)
 @decorators.require_dev_environment

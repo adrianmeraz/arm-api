@@ -1,10 +1,10 @@
 from src import logs
-from src.amazon import dynamodb, param_store
+from src.amazon import dynamo_db, dynamodb_client, param_store
 from src.amazon.dynamo_db import DynamoDBClient
 from src.models.post import Post
 
 _table_name = param_store.get_secret('AWS_DYNAMO_DB_TABLE_NAME')
-_table_client = DynamoDBClient(dynamodb_client=dynamodb, table_name=_table_name)
+_table_client = DynamoDBClient(dynamodb_client=dynamodb_client, table_name=_table_name)
 logger = logs.get_logger()
 
 def create_post(post: Post):
@@ -39,7 +39,7 @@ def delete_post(post_id: str):
         The raw response returned by the DynamoDB client's `delete_item`
         operation.
     """
-    pk = sk = Post.generate_key(obj_type='POST', obj_id=post_id)
+    pk = sk = dynamo_db.generate_key(obj_type='POST', obj_id=post_id)
     logger.info(f'Deleting post with PK: {pk}, SK: {sk}')
     return _table_client.delete_item(hash_key=post_id, sort_key=post_id)
 
@@ -69,7 +69,7 @@ def get_post(post_id: str):
         The retrieved item as a dict if found, or `None` if the item does
         not exist.
     """
-    pk = sk = Post.generate_key(obj_type='POST', obj_id=post_id)
+    pk = sk = dynamo_db.generate_key(obj_type='POST', obj_id=post_id)
     return _table_client.get_item(hash_key=pk, sort_key=sk)
 
 def batch_create_posts(posts: list[Post]):
@@ -84,10 +84,13 @@ def batch_create_posts(posts: list[Post]):
     """
     return _table_client.batch_write_items([post.model_dump(mode='json') for post in posts])
 
-def get_all_posts():
+def get_all_posts(limit: int):
     """Fetch all posts from the DynamoDB table.
+
+    Args:
+        limit: Optional maximum number of items to return.
 
     Returns:
         A list of items (each a dict) representing all posts in the table.
     """
-    return _table_client.get_all_table_items()
+    return _table_client.get_all_table_items(limit=limit)

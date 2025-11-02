@@ -1,6 +1,7 @@
 import typing
 
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key
 
 from src import exceptions, logs
 
@@ -19,7 +20,7 @@ class DynamoDBClient:
         return self._key_schema['HASH']
 
     @property
-    def range_key_attribute_name(self):
+    def sort_key_attribute_name(self):
         return self._key_schema['RANGE']
 
     def get_all_table_items(self, limit: int = None, **kwargs):
@@ -66,6 +67,61 @@ class DynamoDBClient:
 
         return items
 
+    def query_items_by_prefix(
+        self,
+        hash_key_value: typing.Any,
+        sort_key_prefix: typing.Optional[str] = None,
+        limit: typing.Optional[int] = None,
+        **kwargs
+    ) -> list[dict]:
+        """Query the table by hash key and optional sort-key prefix using pagination.
+
+        Args:
+            hash_key_value: Value for the table's hash key to query.
+            sort_key_prefix: If provided, applies a `begins_with` filter to the sort key.
+            limit: Optional maximum number of items to return. If None, all matching items are returned.
+            **kwargs: Additional keyword arguments passed through to ``query``.
+
+        Returns:
+            A list of matching item dicts.
+        """
+        items: list[dict] = []
+        query_kwargs: dict[str, typing.Any] = dict(**kwargs)
+
+        # Build the key condition expression
+        key_condition = Key(self.hash_key_attribute_name).eq(hash_key_value)
+        if sort_key_prefix is not None:
+            key_condition = key_condition & Key(self.sort_key_attribute_name).begins_with(sort_key_prefix)
+
+        query_kwargs['KeyConditionExpression'] = key_condition
+
+        while True:
+            # If a global limit is provided, pass remaining as the per-query Limit
+            if limit is not None:
+                remaining = limit - len(items)
+                if remaining <= 0:
+                    break
+                query_kwargs['Limit'] = int(remaining)
+
+            try:
+                response = self._table.query(**query_kwargs)
+            except ClientError as e:
+                raise exceptions.DDBException() from e
+
+            page_items = response.get('Items', [])
+            items.extend(page_items)
+
+            if limit is not None and len(items) >= limit:
+                return items[:limit]
+
+            if 'LastEvaluatedKey' in response:
+                query_kwargs['ExclusiveStartKey'] = response['LastEvaluatedKey']
+                continue
+
+            break
+
+        return items
+
     def create_item(self, item: dict, **kwargs: dict):
         try:
             logger.info(f'Creating item: {item}')
@@ -78,7 +134,7 @@ class DynamoDBClient:
         return self._table.delete_item(
             Key={
                 self.hash_key_attribute_name: hash_key,
-                self.range_key_attribute_name: sort_key
+                self.sort_key_attribute_name: sort_key
             }
         )
 
@@ -97,7 +153,7 @@ class DynamoDBClient:
                 for item in data:
                     batch.delete_item(Key={
                         self.hash_key_attribute_name: item[self.hash_key_attribute_name],
-                        self.range_key_attribute_name: item[self.range_key_attribute_name]
+                        self.sort_key_attribute_name: item[self.sort_key_attribute_name]
                     })
         except ClientError as e:
             raise exceptions.DDBException() from e
@@ -106,7 +162,7 @@ class DynamoDBClient:
         response = self._table.get_item(
             Key={
                 self.hash_key_attribute_name: hash_key,
-                self.range_key_attribute_name: sort_key
+                self.sort_key_attribute_name: sort_key
             },
             **kwargs
         )
@@ -123,3 +179,6 @@ class DynamoDBClient:
                         raise exceptions.DDBException() from e
         except ClientError as e:
             raise exceptions.DDBException() from e
+
+def generate_key(obj_type: str, obj_id: str) -> str:
+    return f'{obj_type.upper()}#{obj_id}'

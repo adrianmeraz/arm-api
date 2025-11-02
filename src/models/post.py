@@ -3,6 +3,8 @@ import pydantic
 from .base import ConfiguredModel
 from pydantic import BaseModel
 
+from ..amazon import dynamo_db
+
 
 class Post(ConfiguredModel):
     obj_type: str = 'POST'
@@ -19,7 +21,7 @@ class Post(ConfiguredModel):
     @pydantic.model_validator(mode='after')
     def validate_keys(self):
         if not self.pk:
-            self.pk = self.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
+            self.pk = dynamo_db.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
         if not self.sk:
             self.sk = self.pk
         return self

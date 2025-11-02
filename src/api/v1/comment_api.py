@@ -12,24 +12,25 @@ router = APIRouter()
 
 
 @router.get("", response_model=List[Comment])
-def read_comments():
-    return comment_data.get_all_comments()
+def get_comments(post_id: str):
+    return comment_data.get_post_comments(post_id=post_id)
 
 
 @router.post("", response_model=Comment)
 @decorators.require_dev_environment
-def create_comment(comment: Comment):
-    return comment_data.create_comment(comment)
+def create_comment(post_id: str, comment: Comment):
+    comment.pk=post_id
+    return comment_data.create_comment(comment=comment)
 
 
 @router.delete("/{comment_id}")
 @decorators.require_dev_environment
-def delete_comment(comment_id: str):
-    return comment_data.delete_comment(comment_id=comment_id)
+def delete_comment(post_id: str, comment_id: str):
+    return comment_data.delete_comment(post_id=post_id, comment_id=comment_id)
 
 
 @router.delete("")
 @decorators.require_dev_environment
-def delete_all_comments():
+def delete_all_comments(post_id: str):
     logger.info(f'Deleting all comments')
-    return comment_data.delete_all_comments()
+    return comment_data.delete_all_comments(post_id=post_id)

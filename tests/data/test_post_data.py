@@ -1,9 +1,11 @@
-import pytest
 from unittest.mock import patch
-import pydantic
 
-from src.models.post import Post
+import pydantic
+import pytest
+
+from src.amazon import dynamo_db
 from src.data import post_data
+from src.models.post import Post
 
 
 @pytest.fixture
@@ -86,7 +88,7 @@ def test_get_all_posts(mock_dynamo_client, sample_post):
     mock_dynamo_client.get_all_table_items.return_value = mock_posts
 
     # Execute
-    result = post_data.get_all_posts()
+    result = post_data.get_all_posts(limit=25)
 
     # Verify
     mock_dynamo_client.get_all_table_items.assert_called_once()
@@ -107,7 +109,7 @@ def test_get_post(mock_dynamo_client, sample_post):
     """Test retrieving a single post by id uses generated key and returns item."""
     # Arrange
     post_id = "123"
-    expected_pk = Post.generate_key(obj_type='post', obj_id=post_id)
+    expected_pk = dynamo_db.generate_key(obj_type='post', obj_id=post_id)
     expected_item = sample_post.model_dump(mode='json')
     mock_dynamo_client.get_item.return_value = expected_item
 

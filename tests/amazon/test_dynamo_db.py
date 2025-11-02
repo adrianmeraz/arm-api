@@ -27,7 +27,7 @@ def dynamodb_client(mock_dynamodb_table):
 
 def test_init_client(dynamodb_client):
     assert dynamodb_client.hash_key_attribute_name == "itemId"
-    assert dynamodb_client.range_key_attribute_name == "sortKey"
+    assert dynamodb_client.sort_key_attribute_name == "sortKey"
 
 
 def test_get_all_table_items_empty(mock_dynamodb_table, dynamodb_client):

@@ -5,6 +5,7 @@ import pydantic
 from pydantic import BaseModel
 
 from src import logs
+from src.amazon import dynamo_db
 
 logger = logs.get_logger()
 
@@ -17,12 +18,6 @@ class ConfiguredModel(BaseModel):
     @staticmethod
     def generate_id() -> str:
         return uuid.uuid4().hex
-
-    @staticmethod
-    def generate_key(obj_type: str, obj_id: str) -> str:
-        key = f'{obj_type.upper()}#{obj_id}'
-        logger.info(f'Generated key: {key}')
-        return key
 
     obj_id: str = pydantic.Field(default_factory=generate_id)
     obj_type: str = ''
@@ -38,6 +33,6 @@ class ConfiguredModel(BaseModel):
     @pydantic.model_validator(mode='after')
     def validate_pk(self):
         if self.pk == "" and all([self.obj_type, self.obj_id]):
-            self.pk = self.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
+            self.pk = dynamo_db.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
             logger.info(f'New PK: {self.pk}')
         return self
