@@ -28,7 +28,7 @@ def require_dev_environment(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         env = param_store.get_secret('ENVIRONMENT')
-        if env != 'dev':
+        if env not in ['local', 'dev']:
             logger.warning(f'Blocked call to {func.__name__} in non-dev environment: {env}')
             raise HTTPException(status_code=403, detail="Not Authorized")
         return func(*args, **kwargs)
