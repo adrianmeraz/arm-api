@@ -1,19 +1,19 @@
 import json
-import re
 from importlib.resources import open_text
 
 import httpx
 import pytest
 import respx
 
-from src.reddit.client import RedditClient
-from src.reddit.subreddits import Subreddit
+from src.reddit.client import RedditAsyncClient
+from src.reddit.post_api import PostApi
 from tests.fixtures import ROOT_RESOURCE_PATH
 
 
 @respx.mock
-def test_get_subreddit_hot_posts_success():
-    client = RedditClient()
+@pytest.mark.asyncio
+async def test_get_subreddit_hot_posts_success():
+    client = RedditAsyncClient()
     subreddit = "space"
     limit = 2
 
@@ -31,7 +31,7 @@ def test_get_subreddit_hot_posts_success():
         )
     )
 
-    result = Subreddit.get_subreddit_hot_posts(client, subreddit, limit=limit)
+    result = await PostApi.get_subreddit_hot_posts(client, subreddit, limit=limit)
     posts = result.data.children
     post_2 = posts[1]
 
@@ -43,24 +43,26 @@ def test_get_subreddit_hot_posts_success():
     assert post_2.is_active is True
     assert post_2.is_video is False
     assert post_2.num_comments == 316
-    assert post_2.preview.all_image_sources == ['https://external-preview.redd.it/Xw7GdwEySMM9cMGT5SAFvSgWpO1nFUlSHmsiosX8PcI.jpeg?auto=webp&amp;s=32d4ad9f84ebb4ad15dd91a4e2fbbfa6c7ce9646']
+    assert post_2.preview.all_unescaped_image_sources == ['https://external-preview.redd.it/Xw7GdwEySMM9cMGT5SAFvSgWpO1nFUlSHmsiosX8PcI.jpeg?auto=webp&s=32d4ad9f84ebb4ad15dd91a4e2fbbfa6c7ce9646']
     assert post_2.url == 'https://arstechnica.com/space/2025/10/texas-lawmakers-double-down-on-discovery-call-for-doj-investigation-into-smithsonian/'
     assert post_2.score == 5948
     assert post_2.subreddit == 'space'
     assert post_2.ups == 5948
 
 @respx.mock
-def test_get_subreddit_hot_posts_http_error():
-    client = RedditClient()
+@pytest.mark.asyncio
+async def test_get_subreddit_hot_posts_http_error():
     subreddit = "space"
+    limit = 10
 
     # mock a 500 response
-    route = respx.get(re.compile(rf"{re.escape(client.base_url)}/r/{subreddit}/hot\.json.*")).mock(
+    route = respx.get(f'https://www.reddit.com/r/{subreddit}/hot.json').mock(
         return_value=httpx.Response(500, json={"message": "internal error"})
     )
 
     with pytest.raises(httpx.HTTPStatusError):
-        Subreddit.get_subreddit_hot_posts(client, subreddit)
+        async with RedditAsyncClient() as client:
+            await PostApi.get_subreddit_hot_posts(client=client, subreddit=subreddit, limit=limit)
 
     assert route.called
 
