@@ -21,10 +21,19 @@ class Post(ConfiguredModel):
     @pydantic.model_validator(mode='after')
     def validate_keys(self):
         if not self.pk:
-            self.pk = dynamo_db.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
+            self.pk = dynamo_db.generate_key(obj_type='POST', obj_id=self.obj_id)
         if not self.sk:
             self.sk = self.pk
         return self
+
+
+class PostIn(BaseModel):
+    author: str
+    body_html: str
+    category: str
+    image_url: str
+    permalink: str
+    title: str
 
 
 class PostOut(BaseModel):

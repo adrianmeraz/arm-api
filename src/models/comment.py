@@ -19,5 +19,5 @@ class Comment(ConfiguredModel):
         if not self.pk:
             self.pk = dynamo_db.generate_key(obj_type='POST', obj_id=self.parent_id)
         if not self.sk:
-            self.sk = dynamo_db.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
+            self.sk = dynamo_db.generate_key(obj_type='COMMENT', obj_id=self.obj_id)
         return self

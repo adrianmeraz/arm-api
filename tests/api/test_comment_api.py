@@ -30,6 +30,18 @@ def test_read_comments(mock_get_all):
     assert data[0]["author"] == "user1"
 
 
+@patch("src.data.comment_data.get_post_comment")
+def test_get_comment(mock_get):
+    mock_get.return_value = make_comment_payload()
+
+    resp = client.get("/post/p1/comment/c1")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["obj_id"] == "c1"
+    assert data["author"] == "user1"
+    assert data["post_id"] == "p1"
+
+
 @patch("src.data.comment_data.create_comment")
 def test_create_comment(mock_create):
     payload = make_comment_payload()
