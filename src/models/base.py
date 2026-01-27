@@ -5,25 +5,21 @@ import pydantic
 from pydantic import BaseModel
 
 from src import logs
+from src.amazon import dynamo_db
 
 logger = logs.get_logger()
 
 
-class BaseDDBModel(BaseModel):
+class ConfiguredModel(BaseModel):
     @staticmethod
     def now_timestamp() -> int:
         return int(datetime.datetime.now().timestamp())
 
-    def generate_pk(self) -> str:
-        pk = f'{self.obj_type}#{self.obj_id}'
-        logger.info(f'Generated PK: {pk}')
-        return pk
+    @staticmethod
+    def generate_id() -> str:
+        return uuid.uuid4().hex
 
-    @classmethod
-    def create_pk(cls, obj_type: str, obj_id: uuid.uuid4) -> str:
-        return f'{obj_type}#{obj_id}'
-
-    obj_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
+    obj_id: str = pydantic.Field(default_factory=generate_id)
     obj_type: str = ''
     pk: str = ''
     sk: str = ''
@@ -37,6 +33,6 @@ class BaseDDBModel(BaseModel):
     @pydantic.model_validator(mode='after')
     def validate_pk(self):
         if self.pk == "" and all([self.obj_type, self.obj_id]):
-            self.pk = self.create_pk(obj_type=self.obj_type, obj_id=self.obj_id)
+            self.pk = dynamo_db.generate_key(obj_type=self.obj_type, obj_id=self.obj_id)
             logger.info(f'New PK: {self.pk}')
         return self
