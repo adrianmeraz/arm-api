@@ -1,7 +1,7 @@
 import typing
 
-from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
 
 from src import exceptions, logs
 
@@ -20,8 +20,8 @@ class DynamoDBClient:
         return self._key_schema['HASH']
 
     @property
-    def sort_key_attribute_name(self):
-        return self._key_schema['RANGE']
+    def sort_key_attribute_name(self) -> str | None:
+        return self._key_schema.get('RANGE')
 
     def get_all_table_items(self, limit: int = None, **kwargs):
         """Scan the table and return all items, using pagination.
@@ -122,7 +122,7 @@ class DynamoDBClient:
 
         return items
 
-    def create_item(self, item: dict, **kwargs: dict):
+    def create_item(self, item: dict, **kwargs: typing.Any):
         try:
             logger.info(f'Creating item: {item}')
             self._table.put_item(Item=item, **kwargs)
@@ -130,13 +130,16 @@ class DynamoDBClient:
         except ClientError as e:
             raise exceptions.DDBException() from e
 
-    def delete_item(self, hash_key: str, sort_key: str):
-        return self._table.delete_item(
-            Key={
-                self.hash_key_attribute_name: hash_key,
-                self.sort_key_attribute_name: sort_key
-            }
-        )
+    def delete_item(self, hash_key: str, sort_key: str | None = None):
+        try:
+            return self._table.delete_item(
+                Key={
+                    self.hash_key_attribute_name: hash_key,
+                    self.sort_key_attribute_name: sort_key
+                }
+            )
+        except ClientError as e:
+            raise exceptions.DDBException() from e
 
     def delete_all_items(self):
         response = self._table.scan()
@@ -158,25 +161,25 @@ class DynamoDBClient:
         except ClientError as e:
             raise exceptions.DDBException() from e
 
-    def get_item(self, hash_key: str, sort_key: str, **kwargs: dict):
-        response = self._table.get_item(
-            Key={
-                self.hash_key_attribute_name: hash_key,
-                self.sort_key_attribute_name: sort_key
-            },
-            **kwargs
-        )
-        return response.get('Item', None)
+    def get_item(self, hash_key: str, sort_key: str | None = None, **kwargs: typing.Any):
+        try:
+            response = self._table.get_item(
+                Key={
+                    self.hash_key_attribute_name: hash_key,
+                    self.sort_key_attribute_name: sort_key
+                },
+                **kwargs
+            )
+            return response.get('Item', None)
+        except ClientError as e:
+            raise exceptions.DDBException() from e
 
-    def batch_write_items(self, items: typing.List[dict], **kwargs: dict):
+    def batch_write_items(self, items: typing.List[dict[str, typing.Any]], **kwargs: typing.Any):
         try:
             with self._table.batch_writer() as batch:
                 logger.info(f'Writing {len(items)} batch items')
                 for item in items:
-                    try:
-                        batch.put_item(Item=item, **kwargs)
-                    except ClientError as e:
-                        raise exceptions.DDBException() from e
+                    batch.put_item(Item=item, **kwargs)
         except ClientError as e:
             raise exceptions.DDBException() from e
 
